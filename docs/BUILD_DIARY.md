@@ -3,10 +3,11 @@
 ## Status
 
 - artifact type: public interactive demo and repository
-- current phase: publish prep complete
+- current phase: published and verified
 - public-safe gate: passed; no secrets, personal data, production state, or real integrations
 - draft path: `README.md`
-- review status: verified locally at mobile and desktop viewports
+- live URL: <https://kiku-jw.github.io/hq-deck/>
+- review status: local mobile/desktop QA and public GitHub Pages read-back passed
 
 ## Checklist
 
@@ -63,6 +64,6 @@
 
 ## Phase 6: Publish Prep
 
-- save location: public GitHub repository and GitHub Pages
+- save location: <https://github.com/kiku-jw/hq-deck> and <https://kiku-jw.github.io/hq-deck/>
 - review queue: none
 - announcement TODOs: none
