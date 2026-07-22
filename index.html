@@ -31,9 +31,9 @@
           <span>HQ</span>
         </button>
 
-        <div class="path-progress" id="path-progress" aria-label="Прогресс интервью"></div>
+        <div class="path-progress" id="path-progress" aria-label="Прогресс выбора"></div>
 
-        <button class="icon-button" type="button" data-action="reset" aria-label="Сбросить прототип">
+        <button class="icon-button" id="history-action" type="button" data-action="reset" aria-label="Сбросить прототип" title="Сбросить прототип">
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <path d="M4 7h10a6 6 0 1 1-5.6 8.2M4 7l3-3M4 7l3 3" />
           </svg>
@@ -42,10 +42,6 @@
 
       <section class="stage" id="stage" aria-live="polite"></section>
 
-      <div class="toast" id="undo-toast" role="status" aria-live="polite" hidden>
-        <span id="undo-copy">Выбор сохранён</span>
-        <button type="button" data-action="undo">Отменить</button>
-      </div>
     </main>
 
     <div class="sheet-backdrop" id="sheet-backdrop" hidden></div>

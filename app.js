@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const STORAGE_KEY = "hq-deck-prototype-v1";
+  const STORAGE_KEY = "hq-deck-prototype-v2";
   const HOLD_DURATION = 850;
   const SWIPE_THRESHOLD = 92;
   const RUN_PHASE_MS = 2400;
@@ -10,60 +10,35 @@
     {
       id: "hutmates",
       label: "Hutmates",
-      question: "Сделать Hutmates главным фокусом?",
-      support: "ИИ предложил результат, который можно почувствовать и показать.",
+      question: "Собрать новый игровой билд Hutmates?",
+      support: "Один сценарий. Один репозиторий. Без публикации.",
       art: "hutmates",
       outcome: "Собрать и проверить новый игровой билд Hutmates",
       acceptance: "Билд запускается, ключевой сценарий проходим, проверка зафиксирована",
+      pace: "Сначала один игровой сценарий",
       repo: "Hutmates"
     },
     {
       id: "memory",
       label: "Контекстная память",
       question: "Вернуть старым мыслям практическую ценность?",
-      support: "Связать заметки с текущими проектами и AI-разговорами.",
+      support: "Три релевантные заметки. Локально. Без публикации.",
       art: "memory",
       outcome: "Показать релевантные старые заметки в контексте активного проекта",
       acceptance: "Три сохранённые мысли возвращаются в правильном проектном контексте",
+      pace: "Сначала три релевантные заметки",
       repo: "Personal Corp"
     },
     {
       id: "time",
       label: "Apple Watch",
       question: "Собрать голосовой учёт времени?",
-      support: "Сказать длительность с часов и сразу получить подтверждение.",
+      support: "Одна голосовая команда. Подтверждение и undo.",
       art: "time",
       outcome: "Записывать время одной голосовой командой с Apple Watch",
       acceptance: "Команда создаёт одну запись, подтверждает итог и поддерживает undo",
+      pace: "Сначала одна голосовая команда",
       repo: "Time Ledger"
-    }
-  ];
-
-  const baseClarifiers = [
-    {
-      key: "today",
-      question: "Результат должен быть ощутим сегодня?",
-      support: "Это определит глубину прохода и размер первой версии."
-    },
-    {
-      key: "singleOutcome",
-      question: "Ограничить проход одним результатом?",
-      support: "Один проверяемый итог вместо нескольких параллельных обещаний."
-    },
-    {
-      key: "singleRepo",
-      question: "Оставить изменения в одном репозитории?",
-      support: "Так проще проверить, остановить и откатить работу."
-    },
-    {
-      key: "publish",
-      question: "Включить публикацию в цель?",
-      support: "Если да, перед ней всё равно появится отдельное разрешение."
-    },
-    {
-      key: "review",
-      question: "Нужна независимая проверка результата?",
-      support: "Проверяющий не будет доверять отчёту исполнителя."
     }
   ];
 
@@ -71,8 +46,6 @@
     mode: "discover",
     proposalIndex: 0,
     selectedProjectId: null,
-    answers: {},
-    answerOrder: [],
     history: [],
     nuances: {},
     plan: null,
@@ -85,7 +58,6 @@
   });
 
   let state = loadState();
-  let undoTimer = null;
   let runTimer = null;
   let holdTimer = null;
   let holdFrame = null;
@@ -95,8 +67,7 @@
   const stage = document.querySelector("#stage");
   const progress = document.querySelector("#path-progress");
   const template = document.querySelector("#decision-template");
-  const toast = document.querySelector("#undo-toast");
-  const toastCopy = document.querySelector("#undo-copy");
+  const historyAction = document.querySelector("#history-action");
   const sheet = document.querySelector("#nuance-sheet");
   const backdrop = document.querySelector("#sheet-backdrop");
   const nuanceInput = document.querySelector("#nuance-input");
@@ -132,34 +103,10 @@
     return proposals.find((proposal) => proposal.id === state.selectedProjectId) || null;
   }
 
-  function clarifiers() {
-    const questions = [...baseClarifiers];
-    if (state.answers.today === false) {
-      questions.splice(1, 0, {
-        key: "quality",
-        question: "Тогда выбрать качество вместо скорости?",
-        support: "Проход займёт больше времени, но не будет оптимизироваться под сегодня."
-      });
-    }
-    if (state.answers.singleRepo === false) {
-      const publishIndex = questions.findIndex((item) => item.key === "publish");
-      questions.splice(publishIndex, 0, {
-        key: "phased",
-        question: "Разделить репозитории на независимые этапы?",
-        support: "Каждый этап получит собственную проверку и безопасную остановку."
-      });
-    }
-    return questions;
-  }
-
   function currentQuestion() {
     if (state.mode === "discover") {
       const proposal = proposals[state.proposalIndex];
       return proposal ? { type: "proposal", ...proposal } : null;
-    }
-    if (state.mode === "clarify") {
-      const item = clarifiers().find((question) => !(question.key in state.answers));
-      return item ? { type: "clarifier", label: selectedProject()?.label, art: "scope", ...item } : null;
     }
     return null;
   }
@@ -176,20 +123,10 @@
 
   function renderProgress() {
     progress.replaceChildren();
-    let total = proposals.length;
-    let current = state.proposalIndex;
-    let done = state.proposalIndex;
-
-    if (state.mode === "clarify" || state.mode === "plan" || ["running", "paused", "gate", "complete"].includes(state.mode)) {
-      const items = clarifiers();
-      total = items.length + 2;
-      done = Object.keys(state.answers).length + 1;
-      current = Math.min(done, total - 1);
-    }
-
-    if (["plan", "running", "paused", "gate", "complete"].includes(state.mode)) {
-      current = total - 1;
-    }
+    const discovering = state.mode === "discover";
+    const total = discovering ? proposals.length : 2;
+    const done = discovering ? state.proposalIndex : state.mode === "complete" ? 2 : 1;
+    const current = discovering ? state.proposalIndex : 1;
 
     for (let index = 0; index < Math.min(total, 8); index += 1) {
       const dot = document.createElement("span");
@@ -203,9 +140,10 @@
   function render() {
     clearTimeout(runTimer);
     runTimer = null;
+    renderHistoryAction();
     renderProgress();
 
-    if (state.mode === "discover" || state.mode === "clarify") renderDecision();
+    if (state.mode === "discover") renderDecision();
     else if (state.mode === "plan") renderPlan();
     else if (state.mode === "running" || state.mode === "paused") renderRun();
     else if (state.mode === "gate") renderGate();
@@ -215,15 +153,18 @@
     persist();
   }
 
+  function renderHistoryAction() {
+    const canUndo = state.history.length > 0 && (state.mode === "discover" || state.mode === "plan");
+    historyAction.dataset.action = canUndo ? "undo" : "reset";
+    const label = canUndo ? "Отменить последний выбор" : "Сбросить прототип";
+    historyAction.setAttribute("aria-label", label);
+    historyAction.title = label;
+  }
+
   function renderDecision() {
     const question = currentQuestion();
     if (!question) {
-      if (state.mode === "discover") {
-        state.mode = "empty";
-      } else {
-        state.plan = buildPlan();
-        state.mode = "plan";
-      }
+      state.mode = "empty";
       render();
       return;
     }
@@ -316,34 +257,15 @@
     if (!question) return;
     pushHistory();
 
-    if (question.type === "proposal") {
-      if (value) {
-        state.selectedProjectId = question.id;
-        state.mode = "clarify";
-        state.answers = {};
-        state.answerOrder = [];
-      } else {
-        state.proposalIndex += 1;
-      }
+    if (value) {
+      state.selectedProjectId = question.id;
+      state.plan = buildPlan();
+      state.mode = "plan";
     } else {
-      state.answers[question.key] = value;
-      state.answerOrder.push(question.key);
-      const next = currentQuestion();
-      if (!next) {
-        state.plan = buildPlan();
-        state.mode = "plan";
-      }
+      state.proposalIndex += 1;
     }
 
-    showUndo(value ? "Да — учтено" : "Нет — учтено");
     render();
-  }
-
-  function showUndo(copy) {
-    clearTimeout(undoTimer);
-    toastCopy.textContent = copy;
-    toast.hidden = false;
-    undoTimer = setTimeout(() => { toast.hidden = true; }, 4200);
   }
 
   function undo() {
@@ -351,55 +273,35 @@
     if (!previous) return;
     const history = state.history;
     state = { ...initialState(), ...previous, history, run: { ...initialState().run, ...previous.run } };
-    toast.hidden = true;
     render();
   }
 
   function buildPlan() {
     const project = selectedProject();
-    const answers = state.answers;
-    const scope = answers.singleOutcome === false
-      ? "Допускается несколько связанных результатов"
-      : "Один проверяемый результат";
-    const repo = answers.singleRepo === false
-      ? (answers.phased === false ? "Несколько репозиториев — запуск заблокирован до разделения" : "Несколько репозиториев, по независимым этапам")
-      : `Один репозиторий: ${project.repo}`;
-    const pace = answers.today === false
-      ? (answers.quality === false ? "Без искусственного дедлайна" : "Качество важнее скорости")
-      : "Первый ощутимый результат сегодня";
-    const publication = answers.publish ? "Публикация только через отдельный гейт" : "Без публикации";
-    const review = answers.review ? "Независимый verifier обязателен" : "Только детерминированные проверки";
-    const relevantNuanceKeys = [`proposal:${project.id}`, ...Object.keys(answers)];
-    const nuance = relevantNuanceKeys
-      .map((key) => state.nuances[key])
-      .filter(Boolean)
-      .join(" · ");
+    const nuance = state.nuances[`proposal:${project.id}`] || "";
 
     return {
       project: project.label,
       outcome: project.outcome,
       acceptance: project.acceptance,
-      scope,
-      repo,
-      pace,
-      publication,
-      review,
-      publishRequested: Boolean(answers.publish),
-      blocked: answers.singleRepo === false && answers.phased === false,
+      scope: "Один проверяемый результат",
+      repo: `Один репозиторий: ${project.repo}`,
+      pace: project.pace,
+      publication: "Без публикации",
+      review: "Проверка обязательна",
+      publishRequested: false,
       nuance
     };
   }
 
   function renderPlan() {
     const plan = state.plan || buildPlan();
-    clearTimeout(undoTimer);
-    toast.hidden = true;
     stage.innerHTML = `
       <section class="plan-view" aria-labelledby="plan-title">
         <div class="plan-hero" aria-hidden="true">
           <svg viewBox="0 0 24 24"><path d="M7 7h10M7 12h7M7 17h4"/><circle cx="18" cy="12" r="1.5"/><circle cx="15" cy="17" r="1.5"/></svg>
         </div>
-        <p class="eyebrow">План готов · ${escapeHtml(plan.project)}</p>
+        <p class="eyebrow">${escapeHtml(plan.project)} · план без уточнений</p>
         <h1 class="plan-title" id="plan-title">${escapeHtml(plan.outcome)}</h1>
         <p class="plan-meta">${escapeHtml(plan.pace)}${plan.nuance ? ` · ${escapeHtml(plan.nuance)}` : ""}</p>
         <dl class="plan-facts">
@@ -407,13 +309,25 @@
           <div class="plan-fact"><dt>Готово</dt><dd>${escapeHtml(plan.acceptance)}.</dd></div>
           <div class="plan-fact"><dt>Контроль</dt><dd>${escapeHtml(plan.review)}. ${escapeHtml(plan.publication)}.</dd></div>
         </dl>
+        <button class="plan-option ${plan.publishRequested ? "is-active" : ""}" type="button" data-action="toggle-publish" aria-pressed="${plan.publishRequested}">
+          ${plan.publishRequested ? "✓ Публикация — после отдельного подтверждения" : "+ Нужна публикация"}
+        </button>
         <div class="plan-actions">
-          <button class="button secondary" type="button" data-action="undo">Изменить</button>
-          <button class="button primary hold-button" type="button" data-action="hold-launch" ${plan.blocked ? "disabled" : ""}>${plan.blocked ? "Сначала разделить" : "Удерживай запуск"}</button>
+          <button class="button secondary" type="button" data-action="undo">Другая идея</button>
+          <button class="button primary hold-button" type="button" data-action="hold-launch">Удерживай запуск</button>
           <p class="hold-hint">Свайпы собрали план, но не дали полномочий на запуск</p>
         </div>
       </section>`;
     wireHoldButton(document.querySelector("[data-action='hold-launch']"), startRun);
+  }
+
+  function togglePublication() {
+    state.plan.publishRequested = !state.plan.publishRequested;
+    state.plan.publication = state.plan.publishRequested
+      ? "Публикация только через отдельный гейт"
+      : "Без публикации";
+    state.run.publishDecision = null;
+    render();
   }
 
   function wireHoldButton(button, callback) {
@@ -615,10 +529,8 @@
 
   function reset() {
     clearTimeout(runTimer);
-    clearTimeout(undoTimer);
     localStorage.removeItem(STORAGE_KEY);
     state = initialState();
-    toast.hidden = true;
     render();
   }
 
@@ -646,6 +558,7 @@
     else if (action === "open-nuance") openNuance();
     else if (action === "close-nuance") closeNuance();
     else if (action === "save-nuance") saveNuance();
+    else if (action === "toggle-publish") togglePublication();
     else if (action === "pause") {
       state.run.stopRequested = true;
       persist();
@@ -669,7 +582,7 @@
       closeNuance();
       return;
     }
-    if (sheet.hidden && (state.mode === "discover" || state.mode === "clarify")) {
+    if (sheet.hidden && state.mode === "discover") {
       if (event.key === "ArrowLeft") animateDecision(false);
       if (event.key === "ArrowRight") animateDecision(true);
       if (event.key.toLowerCase() === "n") openNuance();

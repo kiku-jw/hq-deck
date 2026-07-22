@@ -32,6 +32,7 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--text);
+  -webkit-font-smoothing: antialiased;
 }
 
 body {
@@ -488,45 +489,6 @@ textarea:focus-visible,
   text-align: center;
 }
 
-.toast {
-  position: fixed;
-  z-index: 60;
-  left: 50%;
-  bottom: calc(var(--safe-bottom) + 10px);
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  width: min(calc(100% - 36px), 440px);
-  min-height: 52px;
-  padding: 11px 12px 11px 18px;
-  border: 1px solid var(--line);
-  border-radius: 18px;
-  background: rgba(25, 29, 28, 0.94);
-  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(18px);
-  transform: translate(-50%, 0);
-}
-
-.toast[hidden] {
-  display: none;
-}
-
-.toast span {
-  flex: 1;
-  color: var(--muted);
-  font-size: 14px;
-}
-
-.toast button {
-  min-height: 36px;
-  padding: 0 10px;
-  border: 0;
-  background: transparent;
-  color: var(--text);
-  font-weight: 700;
-  cursor: pointer;
-}
-
 .sheet-backdrop {
   position: fixed;
   z-index: 70;
@@ -718,6 +680,31 @@ textarea:focus-visible,
   color: var(--text);
   font-size: 15px;
   line-height: 1.42;
+}
+
+.plan-option {
+  justify-self: start;
+  min-height: 44px;
+  margin: 10px 0 0;
+  padding: 0 2px;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 650;
+  cursor: pointer;
+  transition:
+    color 120ms var(--ease-out),
+    transform 100ms var(--ease-out);
+}
+
+.plan-option:hover,
+.plan-option.is-active {
+  color: var(--yes);
+}
+
+.plan-option:active {
+  transform: scale(0.96);
 }
 
 .hold-button {
@@ -980,7 +967,7 @@ textarea:focus-visible,
   }
 }
 
-@media (max-height: 720px) {
+@media (max-height: 820px) {
   .decision-content h1,
   .plan-title,
   .run-title,
@@ -1004,15 +991,41 @@ textarea:focus-visible,
   .completion-symbol {
     width: 70px;
     height: 70px;
-    margin-bottom: 18px;
+    margin-bottom: 14px;
   }
 
   .plan-facts {
-    margin-top: 20px;
+    margin-top: 16px;
   }
 
   .plan-fact {
-    padding: 12px 0;
+    padding: 10px 0;
+  }
+
+  .plan-view {
+    padding-top: 8px;
+  }
+
+  .plan-meta {
+    margin-top: 8px;
+  }
+
+  .plan-option {
+    min-height: 36px;
+    margin-top: 2px;
+  }
+
+  .plan-actions {
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  .plan-actions .button {
+    min-height: 48px;
+  }
+
+  .plan-actions .hold-hint {
+    display: none;
   }
 }
 

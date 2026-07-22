@@ -13,21 +13,23 @@ A swipe-first interface for turning AI-proposed work into bounded, reviewable ex
 Open the **[live GitHub Pages demo](https://kiku-jw.github.io/hq-deck/)**.
 
 Swipe the card, use the visible `Нет` / `Да` controls, or press the arrow keys.
-The interview shapes a plan; it does not grant execution authority. Starting a
-mock run and approving publication each require a separate hold gesture.
+An accepted proposal becomes a bounded plan immediately; obvious safety choices
+are already filled in. Starting a mock run and approving an optional publication
+still require separate hold gestures.
 
 ## Why this exists
 
 AI orchestration interfaces tend to become dashboards full of task metadata,
 agent chatter, and irreversible buttons. HQ Deck explores a smaller interaction:
-the AI proposes one decision at a time, the human shapes scope with low-effort
-choices, and authority remains explicit.
+the AI proposes one fully bounded decision at a time, the human accepts, rejects,
+or adds a nuance, and authority remains explicit.
 
 ## Features
 
-- Swipe-first adaptive interview with button and keyboard alternatives
+- Swipe-first finite proposal deck with button and keyboard alternatives
 - Question-scoped nuance without adding a third primary answer
-- Immediate undo and a finite proposal deck
+- Persistent undo with no feedback overlay near the primary controls
+- Safe defaults: one result, one repository, required verification, no publication
 - Plan receipt with outcome, boundaries, acceptance criteria, and gates
 - Hold-to-launch interaction that rejects ordinary clicks
 - Mock execution phases with stop-after-phase and safe reload behavior

@@ -42,7 +42,7 @@
 ## Phase 2.7: Brief
 
 - thesis: low-effort decisions can shape work without silently authorizing it
-- structure: proposal deck → clarifiers → plan → held launch → mock phases → permission gate → receipt
+- structure: bounded proposal → plan with safe defaults → held launch → mock phases → optional permission gate → receipt
 - proof points: inert ordinary click, explicit hold, stop-after-phase, paused reload, separate publish gate
 - excluded material: private project context and real operational data
 
@@ -53,8 +53,8 @@
 
 ## Phase 4: Critique / Deaify
 
-- issues found: global nuance leakage, hidden launch action, decorative pause timing
-- fixes applied: question-scoped notes, visible plan action, usable phase duration
+- issues found: global nuance leakage, hidden launch action, decorative pause timing, mandatory low-value questions, an undo toast over the primary actions, and a below-the-fold laptop launch action
+- fixes applied: question-scoped notes, immediate proposal-to-plan acceptance, safe plan defaults, persistent header undo, visible plan action, and compact short-viewport layout
 
 ## Phase 5: Title / Packaging
 
