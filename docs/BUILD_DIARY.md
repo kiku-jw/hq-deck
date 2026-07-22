@@ -55,6 +55,8 @@
 
 - issues found: global nuance leakage, hidden launch action, decorative pause timing, mandatory low-value questions, an undo toast over the primary actions, and a below-the-fold laptop launch action
 - fixes applied: question-scoped notes, immediate proposal-to-plan acceptance, safe plan defaults, persistent header undo, visible plan action, and compact short-viewport layout
+- motion pass: replaced the single loading dot with state-derived orbital progress, animated phase continuity, a truly static paused state, a short publication-gate entrance, and one-shot verified completion
+- motion guardrails: active loops exist only during execution; reduced motion removes every loop and spatial transition while preserving status text
 
 ## Phase 5: Title / Packaging
 

@@ -32,9 +32,11 @@ or adds a nuance, and authority remains explicit.
 - Safe defaults: one result, one repository, required verification, no publication
 - Plan receipt with outcome, boundaries, acceptance criteria, and gates
 - Hold-to-launch interaction that rejects ordinary clicks
-- Mock execution phases with stop-after-phase and safe reload behavior
+- Layered animated process instrument with phase continuity and tabular progress
+- Mock execution phases with stop-after-phase, frozen pause, and safe reload behavior
 - Separate publication permission and evidence-based completion receipt
-- Responsive mobile/desktop layout, visible focus, and reduced-motion support
+- One-shot verified-completion sequence with a drawn success mark
+- Responsive mobile/desktop layout, visible focus, and zero-loop reduced motion
 - Browser-local persistence with no backend or external runtime dependency
 
 ## Quick start

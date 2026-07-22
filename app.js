@@ -380,22 +380,35 @@
   function renderRun() {
     const paused = state.mode === "paused";
     const activeIndex = state.run.phaseIndex;
+    const progressPercent = Math.round((state.run.completedPhases / phases.length) * 100);
     const phaseItems = phases.map((phase, index) => {
       const done = index < state.run.completedPhases;
       const active = !paused && index === activeIndex;
+      const pausedCurrent = paused && index === activeIndex;
       const status = done ? "Готово" : active ? "В работе" : paused && index === activeIndex ? "Пауза" : "Ожидает";
-      return `<li class="phase-item ${done ? "is-done" : ""} ${active ? "is-active" : ""}">
-        <span class="phase-index">${done ? "✓" : index + 1}</span>
+      return `<li class="phase-item ${done ? "is-done" : ""} ${active ? "is-active" : ""} ${pausedCurrent ? "is-paused" : ""}" style="--phase-delay: ${100 + index * 34}ms">
+        <span class="phase-index">
+          <span class="phase-number">${index + 1}</span>
+          <svg class="phase-check" viewBox="0 0 16 16" aria-hidden="true"><path pathLength="1" d="m3.5 8.2 2.8 2.8 6.2-6.2"/></svg>
+        </span>
         <span>${phase}</span>
         <span class="phase-status">${status}</span>
       </li>`;
     }).join("");
 
     stage.innerHTML = `
-      <section class="run-view" aria-labelledby="run-title">
-        <div class="run-orbit" aria-hidden="true">
-          ${paused ? "" : '<span class="run-orbit-dot"></span>'}
-          <span class="run-orbit-label">${paused ? "Пауза" : Math.round((state.run.completedPhases / phases.length) * 100) + "%"}</span>
+      <section class="run-view ${paused ? "is-paused" : "is-running"}" aria-labelledby="run-title" style="--run-progress: ${progressPercent}%">
+        <div class="run-instrument" aria-hidden="true">
+          <div class="run-orbit-aura"></div>
+          <div class="run-orbit">
+            <span class="run-orbit-inner"></span>
+            ${paused ? "" : '<span class="run-orbit-dot"></span>'}
+            <span class="run-orbit-core">
+              <strong class="run-orbit-label">${progressPercent}%</strong>
+              <span class="run-orbit-step">${paused ? "пауза" : `${activeIndex + 1} / ${phases.length}`}</span>
+            </span>
+          </div>
+          <span class="run-state"><i></i>${paused ? "Остановлено" : "Выполняется"}</span>
         </div>
         <p class="eyebrow">${escapeHtml(state.plan.project)} · mock run</p>
         <h1 class="run-title" id="run-title">${paused ? "Выполнение приостановлено" : phases[activeIndex]}</h1>
@@ -441,6 +454,7 @@
     stage.innerHTML = `
       <section class="gate-card" aria-labelledby="gate-title">
         <div class="gate-icon" aria-hidden="true">
+          <span></span>
           <svg viewBox="0 0 24 24"><path d="M12 3 4.5 6v5.2c0 4.6 3.1 8.8 7.5 9.8 4.4-1 7.5-5.2 7.5-9.8V6L12 3Z"/><path d="M12 8v4M12 16h.01"/></svg>
         </div>
         <p class="eyebrow">Новое полномочие</p>
@@ -472,7 +486,8 @@
     stage.innerHTML = `
       <section class="completion-view" aria-labelledby="completion-title">
         <div class="completion-symbol" aria-hidden="true">
-          <svg viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></svg>
+          <span class="completion-aura"></span>
+          <svg viewBox="0 0 24 24"><path pathLength="1" d="m5 12 4 4L19 6"/></svg>
         </div>
         <p class="eyebrow">Проверенный результат</p>
         <h1 class="completion-title" id="completion-title">Готово без скрытых действий</h1>
