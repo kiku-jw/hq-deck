@@ -1,0 +1,19 @@
+{
+  "name": "HQ Deck",
+  "short_name": "HQ Deck",
+  "description": "A swipe-first prototype for bounded, approval-gated AI orchestration.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#080a0a",
+  "theme_color": "#080a0a",
+  "lang": "ru",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
